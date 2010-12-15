@@ -1,0 +1,100 @@
+<?php // $Id$
+/**
+ * Module:      cache_delayed
+ * Date:        2010-12-15  14:46
+ * Author:      ber
+ *
+ * License:
+ *   
+ *   Copyright (C) 2010  ber
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.pro See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function cache_delayed_install() {
+  // Install tables
+  drupal_install_schema('cache_delayed');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function cache_delayed_uninstall() {
+  // Remove tables
+  drupal_uninstall_schema('cache_delayed');
+  
+  // Remove all variable into table
+  $result = db_query('SELECT name FROM {variable} WHERE name LIKE "cache_delayed_%"');
+  while ($row = db_fetch_object($result)) {
+    variable_del($row->name);
+  }
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function cache_delayed_schema() {
+  $schema['cache_delayed'] = array(
+    'description' => t('Queue for cache clears'),
+    'fields' => array(
+      'qid' => array(
+        'description' => t('Queue ID'),
+        'type'        => 'serial',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE,
+      ),
+      'cid' => array(
+        'description' => t('Parameter cid'),
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => '',
+      ),
+      'table' => array(
+        'description' => t('Parameter table'),
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => '',
+      ),
+      'wildcard' => array(
+        'description' => t('Paremeter wildcard'),
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'default'     => '',
+      ),
+      'created_at' => array(
+        'description' => t('Created at timestamp'),
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'default'     => 0,
+      ),
+      'updated_at' => array(
+        'description' => t('Updated at timestamp'),
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'default'     => 0,
+      ),
+    ),
+    'primary key'     => array('qid'),
+    
+  );
+  return $schema;
+}
+

@@ -1,0 +1,5 @@
+; $Id$
+name = cache_delayed
+description = Delayes cache_clear_all
+version = 1.0
+core = 6.x
