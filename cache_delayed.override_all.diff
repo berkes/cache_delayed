@@ -1,0 +1,29 @@
+diff --git a/code/includes/cache.inc b/code/includes/cache.inc
+index ab6fd1f..861a75c 100644
+--- a/code/includes/cache.inc
++++ b/code/includes/cache.inc
+@@ -110,6 +110,15 @@ function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $he
+   if (!db_affected_rows()) {
+     @db_query("INSERT INTO {". $table ."} (cid, data, created, expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)", $cid, $data, $created, $expire, $headers, $serialized);
+   }
++
++/**
++ * Wrapper around the original cache_clear_all, now renamed to _cache_clear_all().
++ * Used to delay cache_clears with cache_delayed module. 
++ */
++function cache_clear_all($cid = NULL, $table = NULL, $wildcard = FALSE) {
++  //require the module in case we are in the wrong bootstrap.
++  require_once('sites/all/modules/custom/cache_delayed/cache_delayed.inc');
++  _cache_delayed_queue($cid, $table, $wildcard);
+ }
+ 
+ /**
+@@ -130,7 +139,7 @@ function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $he
+  *   to match rather than a complete ID. The match is a right hand
+  *   match. If '*' is given as $cid, the table $table will be emptied.
+  */
+-function cache_clear_all($cid = NULL, $table = NULL, $wildcard = FALSE) {
++function _cache_clear_all($cid = NULL, $table = NULL, $wildcard = FALSE) {
+   global $user;
+ 
+   if (!isset($cid) && !isset($table)) {
