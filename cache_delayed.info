@@ -1,5 +1,6 @@
 ; $Id$
 name = cache_delayed
 description = Delayes cache_clear_all
+package = Caching
 version = 1.0
 core = 6.x
