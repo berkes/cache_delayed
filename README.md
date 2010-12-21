@@ -13,8 +13,22 @@ Cases:
  * A site where you want to enforce cache for a longer period, despite you (or other authenticated users) writing articles.
  * Any other site where you have problems building up a proper cache for blocks, pages and such, because it gets flushed by several (core) actions.
 
+### Installation and usage:
+1. Install the module in the regular way. It will not do anything yet.
+1. Include the cache_delayed.inc file in settings.php (needed to have functions available on lower bootstrap moments)
+   `require_once('./sites/all/modules/custom/cache_delayed/cache_delayed.inc');`
+1. Create, or think up a token. Secure tokens can be made (on *nix) with the command `uuidgen`.
+1. Add a token to your settings.php variables. This token grants access for cron. Keep it secret.
+      $conf = array(
+        ...other conf might be set already.
+        'cache_delayed_token' => 's3cr3t-h3r3',
+      );
+1. Use this token in a cron call. Everytim this cron is ran (or more accurate: the url is called) the queue is walked trough and all caches are cleared. You could set this to run every 10 minutes, for example.
+      curl --silent --compressed http://example.com/cache_delayed_remove/s3cr3t-h3r3
+1. In the places where you want to avoid a `cache_clear_all()` , replace with `cache_delayed_clear_all()`. Calling the latter, puts a new to-be-cleared in the queue, wich will be actually cleared on the next cron run.
+
 ### How it works:
-Everytime a cache_clear_all is invoked, instead of clearing the cache, it will 
+Everytime a cache\_clear\_all is invoked, instead of clearing the cache, it will 
 add an entry to a worker queue. 
 When calling a (secured) url, we walk trough the queue, select those entries "old enough" and whipe them from your cache (and remove them from the queue).
 
