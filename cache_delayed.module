@@ -33,11 +33,10 @@ define('CACHE_DELAYED_MAX_PER_RUN', 1000);
 function cache_delayed_menu() {
   $items = array();
   
-  $items['cache_delayed_remove'] = array(
+  $items['cache_delayed_remove/%'] = array(
     'title'            => 'remove cache-items',
     'page callback'    => 'cache_delayed_remove',
     'access callback'  => 'cache_delayed_authenticate',
-    'access arguments' => array(arg(0)),
     'weight'           => 0,
     'type'             => MENU_CALLBACK,
   );
@@ -55,11 +54,28 @@ function cache_delayed_remove() {
   module_load_include('inc', 'cache_delayed', 'cache_delayed');
   $delta = variable_get('cache_delayed_interval', 600);
   $after = time() - $delta; 
-  $res = db_query("SELECT * FROM {cache_delayed} WHERE updated_at >= %d LIMIT %d", $delta, CACHE_DELAYED_MAX_PER_RUN);
+  $res = db_query("SELECT * FROM {cache_delayed} WHERE updated_at >= %d LIMIT %d", $after, CACHE_DELAYED_MAX_PER_RUN);
   while ($row = db_fetch_array($res)) {
-    _cache_clear_all($row['qid'], $row['table'], $row['wildcard']);
+    $qid = (empty($row['qid']) ? NULL : empty($row['qid']));
+    $table = (empty($row['table']) ? NULL : empty($row['table']));
+    $wildcard = (empty($row['wildcard']) ? FALSE : empty($row['wildcard']));
+    cache_clear_all($wildcard, $table, $wildcard);
     _cache_delayed_db_delete($row['qid']);
   }
   exit();
 }
 
+/** Checks validity of a secret token.
+ *
+ * @param $token String.
+ *   Token to validate. Must be set in $conf array of settings.php
+ *
+ * @return
+ *   TRUE if token matches, FALSE if not.
+ */
+function cache_delayed_authenticate() {
+  $their_token = arg(1);
+  $our_token = variable_get('cache_delayed_token', '');
+
+  return (empty($our_token) ? FALSE: ($our_token == $their_token));
+}

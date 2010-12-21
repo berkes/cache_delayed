@@ -60,19 +60,6 @@ function _cache_delayed_queue($cid, $table, $wildcard) {
   return $status;
 }
 
-/** Checks validity of a secret token.
- *
- * @param $token String.
- *   Token to validate. Must be set in $conf array of settings.php
- *
- * @return
- *   TRUE if token matches, FALSE if not.
- */
-function cache_delayed_authenticate($their_token) {
-  $our_token = variable_get('cache_delayed_token', '');
-  return (empty($our_token) ? ($our_token == $their_token) : FALSE);
-}
-
 /**
  * CRUD functions
  */ 
