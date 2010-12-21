@@ -27,6 +27,31 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+ 
+/**
+ * Wrapper around queue function
+ * Drop-in replacement for cache_clear_all()
+ *
+ * Example usage:
+ * @code
+ *  # HACK: replaced the cache_clear_all with our own cache_delayed_clear_all
+ *  # cache_clear_all()
+ *  cache_delayed_clear_all();
+ * @endcode
+ * 
+ * @param $cid
+ *   Description of param $cid
+ * @param $table
+ *   Description of param $table
+ * @param $wildcard
+ *   Description of param $wildcard
+ *
+ * @return
+ *   Description of return value
+ */
+function cache_delayed_clear_all($cid = NULL, $table = NULL, $wildcard = FALSE) {
+  cache_delayed_queue($cid, $table, $wildcard);
+}
 
 /** Add an item to the queue.
  *
@@ -47,7 +72,7 @@
  * @return
  *   Description of return value
  */
-function _cache_delayed_queue($cid, $table, $wildcard) {
+function cache_delayed_queue($cid = NULL, $table = NULL, $wildcard = FALSE) {
   $status = FALSE;
   # In case of a matching record, update instead.
   if ($record = _cache_delayed_db_read($cid, $table, $wildcard)) {
