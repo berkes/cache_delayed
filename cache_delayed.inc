@@ -102,13 +102,13 @@ function cache_delayed_queue($cid = NULL, $table = NULL, $wildcard = FALSE) {
  */
 function _cache_delayed_db_create($cid = '', $table = '' , $wildcard = '') {
   $created_at = $updated_at = time();
-  //We do not use 
   $res = db_query(
     "INSERT DELAYED INTO {cache_delayed} 
-    (cid, table, wildcard, created_at, updated_at) 
+    (cid, `table`, wildcard, created_at, updated_at) 
     VALUES
     ('%s', '%s', '%s', %d, %d) 
   ", $cid, $table, $wildcard, $created_at, $updated_at);
+
   return ($res ? SAVED_NEW : FALSE); 
 }
 
@@ -142,7 +142,7 @@ function _cache_delayed_db_read($qid = NULL, $cid = '', $table = '', $wildcard =
     $params[] = $cid;
   }
   if ($table) {
-    $wheres[] = "table = '%s'";
+    $wheres[] = "`table` = '%s'";
     $params[] = $table;
   }
   if ($wildcard) {
@@ -177,7 +177,7 @@ function _cache_delayed_db_update($qid, $cid = 0, $table = '', $wildcard = '') {
   $res = db_query(
     "UPDATE LOW_PRIORITY {cache_delayed} SET
       cid = '%s',
-      table = '%s',
+      `table` = '%s',
       wildcard = '%s',
       updated_at = %d
     WHERE qid = %d
